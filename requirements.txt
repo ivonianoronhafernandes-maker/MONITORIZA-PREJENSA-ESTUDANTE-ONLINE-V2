@@ -1,0 +1,10 @@
+streamlit>=1.45
+pandas>=2.0
+plotly>=5.20
+qrcode[pil]>=7.4
+kafka-python>=2.0
+# Spark runs inside Docker (see docker-compose.yml); pyspark is not needed on the host.
+openpyxl>=3.1
+reportlab>=4.0
+xlrd
+flask>=3.0

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block body %}
+{% set t = d.totals %}
+<section class="cards">
+  <div class="kpi k-blue"><svg viewBox="0 0 24 24"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21c0-4 3-7 7-7s7 3 7 7zM17 11a3 3 0 1 0 0-6M18 14c3 0 4 3 4 7h-4"/></svg>
+    <div><b>{{ '{:,}'.format(t.total)|replace(',', '.') }}</b><span>Total Rejistu</span><em>{{ '↑' if t.kresimentu >= 0 else '↓' }} {{ '%+.0f' % t.kresimentu }}%</em></div></div>
+  <div class="kpi k-green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>
+    <div><b>{{ '{:,}'.format(t['Prezente'])|replace(',', '.') }}</b><span>Prezente</span><em>↑ {{ t.p_Prezente }}%</em></div></div>
+  <div class="kpi k-orange"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <div><b>{{ '{:,}'.format(t['Atrazadu'])|replace(',', '.') }}</b><span>Atrazadu</span><em>↑ {{ t.p_Atrazadu }}%</em></div></div>
+  <div class="kpi k-red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>
+    <div><b>{{ '{:,}'.format(t['Falta'])|replace(',', '.') }}</b><span>Falta</span><em>↑ {{ t.p_Falta }}%</em></div></div>
+</section>
+<section class="g-main">
+  <div class="card chartc">
+    <div class="ch"><h3><svg viewBox="0 0 24 24"><path d="M5 21V10h4v11zM10 21V3h4v18zM15 21v-8h4v8z"/></svg>Grafiku Prezensa Estudante</h3>
+      <div class="seg" id="seg"><button class="on" data-p="semana">Semana</button><button data-p="fulan">Fulan</button><button data-p="tinan">Tinan</button></div></div>
+    <div class="legend"><i class="b"></i>Prezente <i class="o"></i>Atrazadu <i class="r"></i>Falta</div>
+    <div id="lineChart"></div>
+  </div>
+  <div class="card">
+    <div class="ch"><h3><svg viewBox="0 0 24 24"><path d="M12 3v9h9a9 9 0 1 1-9-9z"/></svg>Distribuisaun Prezensa</h3></div>
+    <div class="donutw"><div id="donut"></div>
+      <ul class="dl" id="dlist"></ul></div>
+  </div>
+</section>
+<section class="g-main">
+  <div class="card">
+    <div class="ch"><h3><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Lista Prezensa Foun</h3>
+      <input class="search" id="q" placeholder="Buka NIM ka naran estudante..."></div>
+    <div class="tabs" id="tabs"><button class="on" data-s="">Hotu</button><button data-s="prezente">Prezente</button><button data-s="atrazadu">Atrazadu</button><button data-s="falta">Falta</button></div>
+    <div class="scroll"><table id="tbl"><thead><tr><th>#</th><th>Naran Estudante</th><th>NIM</th><th>Klase</th><th>Data</th><th>Oras</th><th>Estatutu</th></tr></thead><tbody></tbody></table></div>
+    <div class="pg"><span id="info"></span><div id="pager"></div></div>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <div class="ch"><h3><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Insights &amp; Analytics</h3></div>
+      <ul class="ins" id="ins"></ul>
+    </div>
+    <div class="secure"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+      <div><b>Sistema Seguru no Fiavel</b><span>Dadus estudante iha seguransa máximu</span></div></div>
+  </div>
+</section>
+{% endblock %}
+{% block js %}<script>window.DASH = {{ d|tojson }};</script><script>initDashboard();</script>{% endblock %}

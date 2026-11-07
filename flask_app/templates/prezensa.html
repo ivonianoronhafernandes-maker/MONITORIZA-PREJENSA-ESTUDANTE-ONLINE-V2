@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block h1 %}Rejistu Prezensa{% endblock %}
+{% block sub %}Lista kompletu prezensa estudante (buka, filtru no esporta){% endblock %}
+{% block body %}
+<div class="card">
+  <div class="filters">
+    <input class="search" id="q" placeholder="Buka NIM ka naran estudante...">
+    <select id="f-disiplina"><option value="">Disiplina hotu</option>{% for x in disiplinas %}<option>{{ x }}</option>{% endfor %}</select>
+    <select id="f-klase"><option value="">Klase hotu</option>{% for x in klases %}<option>{{ x }}</option>{% endfor %}</select>
+    <label>Husi <input type="date" id="f-dari"></label><label>To'o <input type="date" id="f-too"></label>
+    <a class="btn" id="exp" href="/export/prezensa.csv">Esporta CSV</a>
+  </div>
+  <div class="tabs" id="tabs"><button class="on" data-s="">Hotu</button><button data-s="prezente">Prezente</button><button data-s="atrazadu">Atrazadu</button><button data-s="falta">Falta</button><button data-s="lisensa">Lisensa</button><button data-s="saisedu">Sai Sedu</button></div>
+  <div class="scroll"><table id="tbl"><thead><tr><th>#</th><th>Naran Estudante</th><th>NIM</th><th>Klase</th><th>Disiplina</th><th>Data</th><th>Oras</th><th>Estatutu</th></tr></thead><tbody></tbody></table></div>
+  <div class="pg"><span id="info"></span><div id="pager"></div></div>
+</div>
+{% endblock %}
+{% block js %}<script>initPrezensa();</script>{% endblock %}

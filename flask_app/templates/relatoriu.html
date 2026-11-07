@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block h1 %}Relatóriu{% endblock %}
+{% block sub %}Rezumu no esporta dadus prezensa ba ficheiru CSV{% endblock %}
+{% block body %}
+<section class="cards">
+  <div class="kpi k-blue"><div><b>{{ '{:,}'.format(t.total)|replace(',', '.') }}</b><span>Total Rejistu Prezensa</span></div></div>
+  <div class="kpi k-green"><div><b>{{ '{:,}'.format(t.estudante)|replace(',', '.') }}</b><span>Total Estudante</span></div></div>
+  <div class="kpi k-orange"><div><b>{{ t.hahu[8:10] }}/{{ t.hahu[5:7] }}/{{ t.hahu[:4] }}</b><span>Data Hahú</span></div></div>
+  <div class="kpi k-red"><div><b>{{ t.remata[8:10] }}/{{ t.remata[5:7] }}/{{ t.remata[:4] }}</b><span>Data Remata</span></div></div>
+</section>
+<div class="card"><div class="ch"><h3>Esporta Relatóriu Prezensa</h3></div>
+  <form class="filters" action="/export/prezensa.csv" method="get">
+    <select name="estatutu"><option value="">Estatutu hotu</option><option value="prezente">Prezente</option><option value="atrazadu">Atrazadu</option><option value="falta">Falta</option><option value="lisensa">Lisensa</option><option value="saisedu">Sai Sedu</option></select>
+    <select name="disiplina"><option value="">Disiplina hotu</option>{% for x in disiplinas %}<option>{{ x }}</option>{% endfor %}</select>
+    <select name="klase"><option value="">Klase hotu</option>{% for x in klases %}<option>{{ x }}</option>{% endfor %}</select>
+    <label>Husi <input type="date" name="dari"></label><label>To'o <input type="date" name="too"></label>
+    <button class="btn" type="submit">Esporta Prezensa (CSV)</button><a class="btn ghost" href="/export/estudante.csv">Esporta Estudante (CSV)</a>
+  </form></div>
+{% endblock %}

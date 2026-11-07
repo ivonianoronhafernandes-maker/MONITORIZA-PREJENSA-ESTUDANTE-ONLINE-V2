@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block h1 %}Lista Estudante{% endblock %}
+{% block sub %}Dadus estudante no resumu prezensa individuál{% endblock %}
+{% block body %}
+<div class="card">
+  <div class="filters">
+    <input class="search" id="q" placeholder="Buka NIM ka naran estudante...">
+    <select id="f-klase"><option value="">Klase hotu</option>{% for x in klases %}<option>{{ x }}</option>{% endfor %}</select>
+    <a class="btn" id="exp" href="/export/estudante.csv">Esporta CSV</a>
+  </div>
+  <div class="scroll"><table id="tbl"><thead><tr><th>#</th><th>Naran Estudante</th><th>NIM</th><th>Klase</th><th>Data Moris</th><th>Total</th><th>Prezente</th><th>Atrazadu</th><th>Falta</th><th>Prezente %</th></tr></thead><tbody></tbody></table></div>
+  <div class="pg"><span id="info"></span><div id="pager"></div></div>
+</div>
+{% endblock %}
+{% block js %}<script>initEstudante();</script>{% endblock %}

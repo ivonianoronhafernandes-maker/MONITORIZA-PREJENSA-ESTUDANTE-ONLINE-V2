@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block h1 %}Konfigurasaun{% endblock %}
+{% block sub %}Informasaun sistema no database{% endblock %}
+{% block body %}
+<div class="g-two">
+<div class="card"><div class="ch"><h3>Database Prezensa</h3></div>
+<ul class="kv"><li><span>Ficheiru</span><b>database/prezensa_tetum.db</b></li><li><span>Fonte dadus</span><b>Kaggle (tradús ba Tetum)</b></li>
+<li><span>Rejistu prezensa</span><b>{{ '{:,}'.format(t.total)|replace(',', '.') }}</b></li><li><span>Estudante</span><b>{{ '{:,}'.format(t.estudante)|replace(',', '.') }}</b></li><li><span>Lian sistema</span><b>Tetum</b></li></ul>
+<p class="muted">Atu importa fali dadus: <code>python scripts/import_data_tetum.py</code></p></div>
+<div class="card"><div class="ch"><h3>Aplikasaun Check-in (Streamlit)</h3></div>
+<p class="muted">Estudante halo check-in liu link/QR code; admin jere klase, estudante no relatóriu iha Streamlit.</p>
+<a class="btn" href="{{ st_url }}" target="_blank">Loke Streamlit</a></div>
+</div>
+{% endblock %}

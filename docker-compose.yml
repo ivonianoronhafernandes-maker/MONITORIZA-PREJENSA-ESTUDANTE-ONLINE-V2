@@ -1,0 +1,117 @@
+# Streaming pipeline for Grupo 1 Attendance
+#
+#   Streamlit app (host) --events--> Kafka --> Spark Structured Streaming --> data/spark/*.json --> dashboard
+#
+#   docker compose up -d            start Kafka, Kafka UI and the Spark job
+#   docker compose logs -f spark    watch Spark micro-batches
+#   docker compose down             stop (data is kept in volumes)
+#   docker compose down -v          stop and wipe Kafka + Spark state
+
+name: grupo1-attendance
+
+services:
+  kafka:
+    image: apache/kafka:3.9.0
+    ports:
+      - "9092:9092"                  # used by the Streamlit app on the host
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller   # KRaft mode, no ZooKeeper
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      # Lightweight TCP probe (the kafka-*.sh tools start a whole JVM, too slow on a laptop).
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/9092"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+
+  kafka-init:
+    image: apache/kafka:3.9.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    # Event log topic: 3 partitions (keyed by class), kept forever so Spark can rebuild from scratch.
+    command: >
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists
+      --topic attendance-events --partitions 3 --replication-factor 1 --config retention.ms=-1
+    restart: "no"
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8085:8080"                  # http://localhost:8085
+    environment:
+      KAFKA_CLUSTERS_0_NAME: attendance
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    restart: unless-stopped
+
+  spark:
+    image: apache/spark:3.5.1-scala2.12-java17-python3-ubuntu
+    user: "0"                        # write to the mounted output folder and volumes
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    ports:
+      - "4040:4040"                  # Spark UI: http://localhost:4040
+    environment:
+      KAFKA_BOOTSTRAP: kafka:29092
+      KAFKA_TOPIC: attendance-events
+      OUTPUT_DIR: /opt/app/output
+      STATE_DIR: /opt/app/state
+      TRIGGER_SECONDS: "5"
+      UTC_OFFSET_HOURS: "9"
+      SHARED_IP_MIN_STUDENTS: "3"
+      BURST_SECONDS: "20"
+      NIM_GUESS_MIN_ATTEMPTS: "3"
+      HOME: /tmp
+    command: >
+      /opt/spark/bin/spark-submit
+      --master local[*]
+      --driver-memory 1g
+      --conf spark.jars.ivy=/opt/app/ivy
+      --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1
+      /opt/app/spark_jobs/attendance_stream.py
+    volumes:
+      - ./spark_jobs:/opt/app/spark_jobs:ro
+      - ./data/spark:/opt/app/output
+      - spark-state:/opt/app/state
+      - spark-ivy:/opt/app/ivy
+    restart: unless-stopped
+
+  # Test runner for spark_jobs/gold.py (see tests/test_spark_gold.py). Not started by `up`.
+  spark-test:
+    image: apache/spark:3.5.1-scala2.12-java17-python3-ubuntu
+    profiles: ["test"]
+    user: "0"
+    environment:
+      HOME: /tmp
+    working_dir: /opt/app
+    command: /opt/spark/bin/spark-submit --master local[*] tests/test_spark_gold.py check data/spark/test_events.json
+    volumes:
+      - ./spark_jobs:/opt/app/spark_jobs:ro
+      - ./tests:/opt/app/tests:ro
+      - ./data/spark:/opt/app/data/spark
+
+volumes:
+  kafka-data:
+  spark-state:
+  spark-ivy:

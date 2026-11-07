@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tet">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Student Attendance Analytics{% endblock %}</title>
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{{ 'embed' if embed else '' }}">
+{% if not embed %}
+<aside class="side" id="side">
+  <div class="brand">
+    <svg class="cap" viewBox="0 0 64 64"><path d="M32 8 4 22l28 14 28-14z" fill="#fff"/><path d="M16 30v11c0 5 7 9 16 9s16-4 16-9V30l-16 8z" fill="#e8eefc"/><path d="M54 25v14" stroke="#f5b942" stroke-width="3" fill="none"/><path d="M10 30c-4 8-2 18 6 23M54 30c4 8 2 18-6 23" stroke="#f5b942" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+    <h2>Student<br>Attendance<br>Analytics</h2>
+    <p>Real-Time ba Monitorizasaun<br>Prezensa Estudante Online</p>
+  </div>
+  <nav>
+    {% set items = [
+      ('dashboard','Dashboard','/dashboard','<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>'),
+      ('prezensa','Prezensa','/prezensa','<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 12l3 3 5-6M9 2v4M15 2v4"/>'),
+      ('estudante','Estudante','/estudante','<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21c0-4 3-7 7-7s7 3 7 7zM17 11a3 3 0 1 0 0-6M18 14c3 0 4 3 4 7h-4"/>'),
+      ('analytics','Analytics','/analytics','<path d="M5 21V10h4v11zM10 21V3h4v18zM15 21v-8h4v8z"/>'),
+      ('relatoriu','Relatóriu','/relatoriu','<path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h8"/>'),
+      ('konfigurasaun','Konfigurasaun','/konfigurasaun','<path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM19 12l2-1-1-3-2 .5-1.5-1.5.5-2-3-1-1 2h-2l-1-2-3 1 .5 2L6 8.5 4 8l-1 3 2 1v1l-2 1 1 3 2-.5L7.5 18l-.5 2 3 1 1-2h2l1 2 3-1-.5-2 1.5-1.5 2 .5 1-3-2-1z"/>')] %}
+    {% for key,label,href,icon in items %}
+    <a href="{{ href }}" class="{{ 'on' if key == active else '' }}"><svg viewBox="0 0 24 24">{{ icon|safe }}</svg>{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <div class="campus"><img src="{{ url_for('static', filename='campus.jpg') }}" alt=""><div><b>Universidade Timor-Leste</b><span>Eduka ho Teknolojia</span></div></div>
+</aside>
+{% endif %}
+<main class="main">
+  {% if not embed %}
+  <header class="top">
+    <button class="burger" onclick="document.getElementById('side').classList.toggle('open')" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="ttl"><h1>{% block h1 %}Dashboard Prezensa{% endblock %}</h1><p>{% block sub %}Monitorizasaun prezensa estudante iha tempu real{% endblock %}</p></div>
+    <div class="who">
+      <span class="online"><i></i>Online</span>
+      <span class="date"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>{{ ohin }}</span>
+      <div class="av"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7z"/></svg></div>
+      <b>{{ user }}</b>
+    </div>
+  </header>
+  {% endif %}
+  <div class="body">
+  {% if not ready %}
+    <div class="card empty"><h3>Database seidauk iha</h3><p>Lao komandu: <code>python scripts/import_data_tetum.py</code></p></div>
+  {% else %}{% block body %}{% endblock %}{% endif %}
+  </div>
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% block js %}{% endblock %}
+</body>
+</html>

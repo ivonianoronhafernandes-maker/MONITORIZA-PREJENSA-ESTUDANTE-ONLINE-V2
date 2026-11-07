@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block h1 %}Analytics Prezensa{% endblock %}
+{% block sub %}Analiza prezensa tuir disiplina, klase, nota no tarefa uma{% endblock %}
+{% block body %}
+<section class="g-two">
+  <div class="card"><div class="ch"><h3>Prezensa tuir Disiplina (%)</h3></div><div class="legend"><i class="b"></i>Prezente <i class="o"></i>Atrazadu <i class="r"></i>Falta</div><div id="c-dis"></div></div>
+  <div class="card"><div class="ch"><h3>Prezensa tuir Klase (%)</h3></div><div class="legend"><i class="b"></i>Prezente <i class="o"></i>Atrazadu <i class="r"></i>Falta</div><div id="c-kla"></div></div>
+</section>
+<section class="g-two">
+  <div class="card"><div class="ch"><h3>Nota Média Teste tuir Disiplina</h3></div><div id="c-nota"></div></div>
+  <div class="card"><div class="ch"><h3>Tarefa Uma Hotu (%) tuir Disiplina</h3></div><div id="c-tar"></div></div>
+</section>
+<div class="card"><div class="ch"><h3>Estudante ho Falta Barak (Top 10)</h3><span class="chip">{{ '{:,}'.format(a.mensajen)|replace(',', '.') }} mensajen mestre–inan-aman</span></div>
+  <div class="scroll"><table><thead><tr><th>#</th><th>Naran Estudante</th><th>NIM</th><th>Klase</th><th>Total Falta</th></tr></thead><tbody>
+  {% for r in a.top_falta %}<tr><td>{{ loop.index }}</td><td>{{ r.naran }}</td><td>{{ r.nim }}</td><td>{{ r.klase }}</td><td><b>{{ r.falta }}</b></td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% endblock %}
+{% block js %}<script>window.AN = {{ a|tojson }};</script><script>initAnalytics();</script>{% endblock %}
